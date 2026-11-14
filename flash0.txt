@@ -1,0 +1,13 @@
+/kd/pspbtknf.bin,dist/flash0/kd/pspbtknf.bin
+/kd/pspbtlnf.bin,dist/flash0/kd/pspbtlnf.bin
+/kd/pspbtjnf.bin,dist/flash0/kd/pspbtjnf.bin
+/kd/pspbtmnf.bin,dist/flash0/kd/pspbtmnf.bin
+/kd/pspbtrnf.bin,dist/flash0/kd/pspbtrnf.bin
+/kd/systemctrl.prx,dist/flash0/kd/systemctrl.prx
+/kd/vshctrl.prx,dist/flash0/kd/vshctrl.prx
+/kd/popcorn.prx,dist/flash0/kd/popcorn.prx
+/kd/inferno.prx,dist/flash0/kd/inferno.prx
+/kd/march33.prx,isodrivers/march33.prx
+/kd/galaxy.prx,isodrivers/galaxy.prx
+/vsh/module/recovery.prx,dist/flash0/vsh/module/recovery.prx
+/vsh/module/satelite.prx,dist/flash0/vsh/module/satelite.prx
