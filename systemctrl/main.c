@@ -487,6 +487,8 @@ int OnModuleStart(SceModule *mod) {
 }
 
 int module_start(SceSize args, void *argp) {
+	initRebootex();
+
 	PatchSysmem();
 	PatchLoadCore();
 	PatchInterruptMgr();

@@ -17,12 +17,21 @@
 */
 
 #include <common.h>
+#include <rebootexconfig.h>
 
 #include "main.h"
 #include "adrenaline.h"
 #include <systemctrl_adrenaline.h>
 
 #include "rebootex.h"
+
+void *custom_rebootex;
+u32 custom_rebootex_size;
+
+void initRebootex(void) {
+	custom_rebootex = rebootex;
+	custom_rebootex_size = size_rebootex;
+}
 
 int (* _sceChkregGetPsCode)(u8 *pscode);
 
@@ -150,7 +159,14 @@ int RunRebootPatched(u32 *params) {
 }
 
 int DecodeKL4EPatched(void *dest, u32 size_dest, void *src, u32 size_src) {
-	memcpy((void *)0x88FC0000, rebootex, size_rebootex);
+	const u8 *payload = custom_rebootex;
+	if (custom_rebootex_size >= 2 && payload[0] == 0x1F && payload[1] == 0x8B) {
+		int result = sceKernelGzipDecompress((void *)0x88FC0000, REBOOTEX_MAX_SIZE, payload, NULL);
+		if (result < 0)
+			return result;
+	} else {
+		memcpy((void *)0x88FC0000, payload, custom_rebootex_size);
+	}
 	memcpy((void *)0x88FB0000, &rebootex_config, sizeof(RebootexConfigTNCEF));
 	return DecodeKL4E(dest, size_dest, src, size_src);
 }

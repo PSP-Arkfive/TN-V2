@@ -117,18 +117,7 @@ u32 sctrlHENFindFunction(const char *szMod, const char *szLib, u32 nid) {
 	return 0;
 }
 
-u32 sctrlHENFindImport(const char *szMod, const char *szLib, u32 nid) {
-	SceModule *mod = sceKernelFindModuleByName661(szMod);
-	if (!mod) {
-		mod = sceKernelFindModuleByAddress661((SceUID)szMod);
-		if (!mod)
-			return 0;
-	}
-/*
-	u32 new_nid = ResolveOldNIDs(szLib, nid);
-	if (new_nid)
-		nid = new_nid;
-*/
+static u32 findImportInModule(SceModule *mod, const char *szLib, u32 nid) {
 	int i = 0;
 	while (i < mod->stub_size) {
 		SceLibraryStubTable *stub = (SceLibraryStubTable *)(mod->stub_top + i);
@@ -147,6 +136,51 @@ u32 sctrlHENFindImport(const char *szMod, const char *szLib, u32 nid) {
 		i += (stub->len * 4);
 	}
 
+	return 0;
+}
+
+u32 sctrlHENFindImport(const char *szMod, const char *szLib, u32 nid) {
+	SceModule *mod = sceKernelFindModuleByName661(szMod);
+	if (!mod) {
+		mod = sceKernelFindModuleByAddress661((SceUID)szMod);
+		if (!mod)
+			return 0;
+	}
+
+	return findImportInModule(mod, szLib, nid);
+}
+
+int sctrlHookImportByNID(SceModule *mod, const char *library, u32 nid, void *func) {
+	if (!mod || !library)
+		return -1;
+
+	u32 stub = findImportInModule(mod, library, nid);
+	if (!stub) {
+		u32 new_nid = ResolveOldNIDs(library, nid);
+		if (!new_nid)
+			return -2;
+		stub = findImportInModule(mod, library, new_nid);
+		if (!stub)
+			return -3;
+	}
+
+	u32 addr = (u32)func;
+	if (addr <= 0xFFFF) {
+		_sw(0x03E00008, stub);
+		_sw(0x24020000 | addr, stub + 4);
+	} else if (!(stub & 0x80000000) && (addr & 0x80000000)) {
+		int syscall = sceKernelQuerySystemCall661(func);
+		if (syscall < 0)
+			return -3;
+		_sw(0x03E00008, stub);
+		_sw((syscall << 6) | 0x0C, stub + 4);
+	} else {
+		MAKE_JUMP(stub, func);
+		_sw(0, stub + 4);
+	}
+
+	sceKernelDcacheWritebackInvalidateRange((void *)stub, 8);
+	sceKernelIcacheInvalidateRange((void *)stub, 8);
 	return 0;
 }
 

@@ -17,9 +17,13 @@
 */
 
 #include <common.h>
+#include <rebootexconfig.h>
 
 #include "main.h"
 #include "adrenaline.h"
+
+extern void *custom_rebootex;
+extern u32 custom_rebootex_size;
 
 int sctrlKernelSetUserLevel(int level) {
 	int k1 = pspSdkSetK1(0);
@@ -189,6 +193,19 @@ void sctrlHENLoadModuleOnReboot(char *module_after, void *buf, int size, int fla
 	rebootex_config.buf = buf;
 	rebootex_config.size = size;
 	rebootex_config.flags = flags;
+}
+
+void sctrlHENSetRebootexOverride(void *rebootex, u32 size) {
+	if (size > REBOOTEX_MAX_SIZE) {
+		return;
+	}
+
+	if (rebootex != NULL) {
+		custom_rebootex = rebootex;
+	}
+	if (size != 0) {
+		custom_rebootex_size = size;
+	}
 }
 
 int sctrlGetUsbState() {

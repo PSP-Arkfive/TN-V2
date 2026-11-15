@@ -44,6 +44,7 @@ void logmsg(char *msg);
 
 extern RebootexConfigTNCEF rebootex_config;
 extern SEConfigTNCEF config;
+void initRebootex(void);
 
 u32 sctrlHENFindImport(const char *szMod, const char *szLib, u32 nid);
 
