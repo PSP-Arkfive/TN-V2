@@ -27,6 +27,8 @@ clean:
 	make -C satelite clean
 	make -C recovery clean
 	make -C inferno clean
+	rm -f systemctrl/binary.h
+	rm -f systemctrl/rebootex.h
 	rm -f btcnf/pspbtcnf_inferno/pspbtcnf.bin
 	rm -f btcnf/pspbtcnf_march33/pspbtcnf.bin
 	rm -f btcnf/pspbtcnf_normal/pspbtcnf.bin
